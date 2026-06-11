@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techfest IIT Bombay | A Simulated Paradigm</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            bg: '#030712',
+                            card: 'rgba(10, 15, 30, 0.7)',
+                            border: 'rgba(0, 240, 255, 0.3)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --neon-accent: #00f0ff;
+            --neon-accent-secondary: #ff007f;
+            --neon-glow: rgba(0, 240, 255, 0.4);
+            --neon-glow-secondary: rgba(255, 0, 127, 0.4);
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #02040a;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Scanlines and holographic grid */
+        .hologram-overlay {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        /* Glowing texts and elements */
+        .neon-text {
+            text-shadow: 0 0 10px var(--neon-glow), 0 0 20px var(--neon-glow);
+        }
+        .neon-text-sec {
+            text-shadow: 0 0 10px var(--neon-glow-secondary), 0 0 20px var(--neon-glow-secondary);
+        }
+
+        .neon-border {
+            border: 1px solid var(--neon-accent);
+            box-shadow: 0 0 10px var(--neon-glow);
+        }
+        .neon-border-sec {
+            border: 1px solid var(--neon-accent-secondary);
+            box-shadow: 0 0 10px var(--neon-glow-secondary);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(2, 4, 10, 0.8);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-accent);
+            border-radius: 2px;
+        }
+
+        /* Cyber Button Effects */
+        .cyber-btn {
+            position: relative;
+            clip-path: polygon(10px 0%, 100% 0%, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0% 100%, 0% 10px);
+            transition: all 0.3s ease;
+        }
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Loading Screen Grid Pulse */
+        @keyframes pulseGrid {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+        .pulse-grid {
+            animation: pulseGrid 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- 3D Background Canvas -->
+    <canvas id="webgl-canvas" class="fixed top-0 left-0 w-full h-full -z-10 bg-black"></canvas>
+
+    <!-- Holographic scanline and noise overlay -->
+    <div class="hologram-overlay fixed top-0 left-0 w-full h-full pointer-events-none -z-5"></div>
+
+    <!-- Preloader & Core Loading Screen -->
+    <div id="loader" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center transition-all duration-1000">
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(0,240,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,240,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pulse-grid"></div>
+        
+        <div class="relative flex flex-col items-center">
+            <!-- Neon Rotating Core Loader -->
+            <div class="relative w-32 h-32 mb-8">
+                <div class="absolute inset-0 rounded-full border-4 border-t-cyan-400 border-r-transparent border-b-transparent border-l-transparent animate-spin" style="animation-duration: 1.5s;"></div>
+                <div class="absolute inset-2 rounded-full border-4 border-b-pink-500 border-t-transparent border-r-transparent border-l-transparent animate-spin" style="animation-duration: 1s; animation-direction: reverse;"></div>
+                <div class="absolute inset-5 rounded-full border-2 border-dashed border-cyan-300 opacity-60 animate-pulse"></div>
+                <div class="absolute inset-8 flex items-center justify-center font-orbitron font-extrabold text-white text-xl tracking-wider">TF</div>
+            </div>
+
+            <h1 class="font-orbitron text-3xl md:text-5xl font-black tracking-widest text-white text-center mb-2">
+                TECHFEST <span class="text-[#00f0ff] neon-text">IIT BOMBAY</span>
+            </h1>
+            <p class="font-rajdhani text-gray-400 uppercase tracking-[0.4em] text-xs md:text-sm mb-6">A Simulated Paradigm</p>
+            
+            <div class="w-64 h-1 bg-gray-900 rounded-full overflow-hidden relative">
+                <div id="loader-bar" class="absolute left-0 top-0 h-full w-0 bg-[#00f0ff] transition-all duration-300 shadow-[0_0_8px_#00f0ff]"></div>
+            </div>
+            <p id="loader-status" class="font-orbitron text-xs text-cyan-400 mt-3 uppercase tracking-widest">Initialising Spatial Engine... [0%]</p>
+        </div>
+    </div>
+
+    <!-- Floating UI Header HUD -->
+    <header class="fixed top-0 left-0 w-full z-30 px-6 py-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm">
+        <div class="flex items-center space-x-4">
+            <div class="border-l-4 border-cyan-400 pl-3">
+                <h1 class="font-orbitron font-black text-xl md:text-2xl tracking-wider text-white">
+                    TECHFEST <span class="text-xs font-semibold block text-cyan-400 font-rajdhani tracking-[0.3em]">IIT BOMBAY</span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Global Navigation -->
+        <nav class="hidden md:flex space-x-6 text-sm font-semibold tracking-widest font-orbitron">
+            <button onclick="goToSection('home')" class="hover:text-cyan-400 transition-colors text-white border-b-2 border-cyan-400 pb-1">PORTAL CORE</button>
+            <button onclick="goToSection('competitions')" class="hover:text-cyan-400 transition-colors text-gray-300">COMPETITIONS</button>
+            <button onclick="goToSection('exhibitions')" class="hover:text-cyan-400 transition-colors text-gray-300">EXHIBITIONS</button>
+            <button onclick="goToSection('lectures')" class="hover:text-cyan-400 transition-colors text-gray-300">LECTURES</button>
+            <button onclick="goToSection('workshops')" class="hover:text-cyan-400 transition-colors text-gray-300">EXPLORE MORE</button>
+        </nav>
+
+        <!-- Sound & Customize Controls -->
+        <div class="flex items-center space-x-3">
+            <!-- Theme Changer Preset Indicator -->
+            <button id="customize-trigger" class="bg-gray-900/80 hover:bg-cyan-500/20 text-white border border-gray-800 p-2 rounded flex items-center justify-center transition-all duration-300" title="Customize Paradigm Dimension">
+                <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 animate-pulse"></i>
+            </button>
+            
+            <button id="audio-toggle" class="bg-gray-900/80 hover:bg-cyan-500/20 text-white border border-gray-800 p-2 rounded flex items-center justify-center transition-all duration-300" title="Toggle Spatial Audio">
+                <i id="audio-icon" class="fa-solid fa-volume-xmark text-red-500"></i>
+            </button>
+            
+            <button onclick="openChat()" class="cyber-btn bg-cyan-500 text-black px-4 py-1.5 font-orbitron font-bold text-xs tracking-wider border border-cyan-400 hover:bg-cyan-400 hover:shadow-[0_0_15px_rgba(0,240,255,0.6)]">
+                AI GUIDE
+            </button>
+        </div>
+    </header>
+
+    <!-- Side Panel (Responsive Slide Out for Content) -->
+    <main id="content-hud" class="fixed top-24 left-6 bottom-6 w-full max-w-[90%] md:max-w-[420px] bg-cyber-card border border-cyber-border rounded-xl backdrop-blur-md z-20 flex flex-col transition-all duration-500 shadow-[0_0_25px_rgba(0,0,0,0.5)] overflow-hidden">
+        
+        <!-- Techfest Live Matrix / Ticker -->
+        <div class="bg-black/40 border-b border-cyber-border px-4 py-2 flex items-center justify-between text-xs font-mono tracking-widest text-cyan-400">
+            <span class="flex items-center space-x-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+                <span>SYSTEM: STABLE</span>
+            </span>
+            <span id="coordinates-text">CORE: 0.00, 0.00</span>
+        </div>
+
+        <!-- Scrollable Content Core -->
+        <div id="hud-scroll-container" class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- HOME SECTION (DEFAULT) -->
+            <section id="section-home" class="space-y-6 block">
+                <div class="space-y-2">
+                    <div class="inline-block bg-[#ff007f]/20 text-[#ff007f] border border-[#ff007f]/40 px-3 py-1 text-xs font-bold tracking-[0.2em] uppercase rounded-full">
+                        29th Edition
+                    </div>
+                    <h2 class="font-orbitron font-extrabold text-3xl md:text-4xl text-white leading-tight">
+                        A SIMULATED <br><span class="text-[#00f0ff] neon-text">PARADIGM</span>
+                    </h2>
+                    <p class="text-xs text-gray-400 tracking-widest uppercase">Dec 22-24, 2025 | IIT Bombay Campus</p>
+                </div>
+
+                <div class="p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-lg space-y-3">
+                    <p class="text-sm text-gray-300 leading-relaxed font-rajdhani">
+                        Step into a mind-bending interactive reality. At Asia's Largest Science & Technology Festival, gaming, simulated ecosystems, and artificial intelligence fuse into an unparalleled technocratic experience.
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <div class="bg-black/40 p-2.5 rounded border border-gray-800 text-center">
+                            <span class="block text-xl font-orbitron font-bold text-[#ff007f]">175k+</span>
+                            <span class="text-[10px] uppercase text-gray-500 tracking-wider">Footfall</span>
+                        </div>
+                        <div class="bg-black/40 p-2.5 rounded border border-gray-800 text-center">
+                            <span class="block text-xl font-orbitron font-bold text-[#00f0ff]">2,500+</span>
+                            <span class="text-[10px] uppercase text-gray-500 tracking-wider">Colleges</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Prompter -->
+                <div class="space-y-2">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Spatial Navigation Guide</p>
+                    <div class="space-y-2 text-xs">
+                        <button onclick="goToSection('competitions')" class="w-full flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 transition-all text-left group">
+                            <span class="flex items-center space-x-3">
+                                <i class="fa-solid fa-trophy text-[#ff007f] group-hover:scale-110 transition-transform"></i>
+                                <span>COMPETITIONS & ROBOWARS</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-right text-gray-600 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                        <button onclick="goToSection('exhibitions')" class="w-full flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 transition-all text-left group">
+                            <span class="flex items-center space-x-3">
+                                <i class="fa-solid fa-robot text-cyan-400 group-hover:scale-110 transition-transform"></i>
+                                <span>GLOBAL EXHIBITIONS</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-right text-gray-600 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                        <button onclick="goToSection('lectures')" class="w-full flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 transition-all text-left group">
+                            <span class="flex items-center space-x-3">
+                                <i class="fa-solid fa-brain text-purple-400 group-hover:scale-110 transition-transform"></i>
+                                <span>LECTURES & SYMPOSIUMS</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-right text-gray-600 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                        <button onclick="goToSection('workshops')" class="w-full flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/30 transition-all text-left group">
+                            <span class="flex items-center space-x-3">
+                                <i class="fa-solid fa-burst text-yellow-400 group-hover:scale-110 transition-transform"></i>
+                                <span>TECHNOHOLIX & OZONE</span>
+                            </span>
+                            <i class="fa-solid fa-chevron-right text-gray-600 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button onclick="openChat()" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-orbitron font-extrabold p-3 rounded-lg text-sm tracking-widest flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all">
+                        <i class="fa-solid fa-sparkles text-black"></i>
+                        <span>AI EVENT ASSISTANT</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- COMPETITIONS SECTION -->
+            <section id="section-competitions" class="space-y-5 hidden">
+                <div>
+                    <h3 class="font-orbitron font-bold text-2xl text-white">COMPETITIONS</h3>
+                    <p class="text-xs text-cyan-400 uppercase tracking-widest">Test Your Limits | Total Prize Pool ₹40,00,000</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- International Robowars -->
+                    <div class="p-4 bg-black/50 border border-red-500/30 rounded-xl space-y-2 relative overflow-hidden group">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-red-500/10 rounded-full blur-xl group-hover:bg-red-500/20 transition-all"></div>
+                        <span class="bg-red-500/20 text-red-400 border border-red-500/40 text-[9px] font-bold px-2 py-0.5 rounded uppercase font-orbitron">Flagship Battle</span>
+                        <h4 class="font-bold text-lg text-white">International Robowars</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Watch heavily armored mechanical beasts clash in India's ultimate robotic combat arena. Featuring multi-weight class structures and international competitors.
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-[#ff007f] font-orbitron font-semibold pt-1">
+                            <span>Arena: KV Grounds</span>
+                            <span>Prize Pool: High</span>
+                        </div>
+                    </div>
+
+                    <!-- Meshmerize -->
+                    <div class="p-4 bg-black/50 border border-cyan-500/30 rounded-xl space-y-2 relative overflow-hidden group">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl group-hover:bg-cyan-500/20 transition-all"></div>
+                        <span class="bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-[9px] font-bold px-2 py-0.5 rounded uppercase font-orbitron">Autonomous Robotics</span>
+                        <h4 class="font-bold text-lg text-white">Meshmerize Wildcard</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Design and build a fully autonomous maze-solving grid crawler that tracks directions, maps coordinates dynamically, and traverses the fastest route.
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-cyan-400 font-orbitron font-semibold pt-1">
+                            <span>Type: Line/Maze Follower</span>
+                            <span>Prize: ₹80,000</span>
+                        </div>
+                    </div>
+
+                    <!-- Algorithmic Trading -->
+                    <div class="p-4 bg-black/50 border border-purple-500/30 rounded-xl space-y-2 relative overflow-hidden group">
+                        <div class="absolute -right-8 -top-8 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
+                        <span class="bg-purple-500/20 text-purple-400 border border-purple-500/40 text-[9px] font-bold px-2 py-0.5 rounded uppercase font-orbitron">FinTech & Quantitative</span>
+                        <h4 class="font-bold text-lg text-white">Algorithmic Trading Challenge</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            In collaboration with Jane Street, engineer, backtest, and deploy high-performance equity and options algorithmic trading models on live simulated stock markets.
+                        </p>
+                        <div class="flex items-center justify-between text-xs text-purple-400 font-orbitron font-semibold pt-1">
+                            <span>Partner: Jane Street</span>
+                            <span>Prize: ₹5,000,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToSection('home')" class="w-full bg-gray-900 border border-gray-800 p-2 text-xs font-orbitron uppercase text-gray-400 hover:text-white rounded transition-colors text-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dimension Center
+                </button>
+            </section>
+
+            <!-- EXHIBITIONS SECTION -->
+            <section id="section-exhibitions" class="space-y-5 hidden">
+                <div>
+                    <h3 class="font-orbitron font-bold text-2xl text-white">GLOBAL EXHIBITIONS</h3>
+                    <p class="text-xs text-cyan-400 uppercase tracking-widest">Miracles of Tomorrow, Today</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Unitree G1 -->
+                    <div class="p-4 bg-black/50 border border-cyan-500/30 rounded-xl space-y-2">
+                        <span class="text-[9px] bg-cyan-400/10 text-cyan-400 px-2 py-0.5 rounded font-mono font-bold">China</span>
+                        <h4 class="font-bold text-lg text-white">Unitree G1 Humanoid Robot</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Behold extreme physical dexterity. The Unitree G1 humanoid robot exhibits stunning self-balancing, deep learning capabilities, complex motor controls, and human-like hand dexterity.
+                        </p>
+                    </div>
+
+                    <!-- DJRobotics -->
+                    <div class="p-4 bg-black/50 border border-purple-500/30 rounded-xl space-y-2">
+                        <span class="text-[9px] bg-purple-400/10 text-purple-400 px-2 py-0.5 rounded font-mono font-bold">Japan</span>
+                        <h4 class="font-bold text-lg text-white">DJRobotics & Robo DJ</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            An fully autonomous humanoid mechanical audio engineer spinning and mixing electronic beats live, syncing music with dynamic lighting and visual frequency analyzers.
+                        </p>
+                    </div>
+
+                    <!-- Defense Expo -->
+                    <div class="p-4 bg-black/50 border border-red-500/30 rounded-xl space-y-2">
+                        <span class="text-[9px] bg-red-400/10 text-red-400 px-2 py-0.5 rounded font-mono font-bold">National Security</span>
+                        <h4 class="font-bold text-lg text-white">Defence & Aero Expo</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Unveiling next-gen systems from DRDO, Bharat Forge, and NSG. Witness high-precision anti-drone guns, tactical explosive-disposal robots, and battlefield sensors.
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="goToSection('home')" class="w-full bg-gray-900 border border-gray-800 p-2 text-xs font-orbitron uppercase text-gray-400 hover:text-white rounded transition-colors text-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dimension Center
+                </button>
+            </section>
+
+            <!-- LECTURES SECTION -->
+            <section id="section-lectures" class="space-y-5 hidden">
+                <div>
+                    <h3 class="font-orbitron font-bold text-2xl text-white">KEYNOTE LECTURES</h3>
+                    <p class="text-xs text-cyan-400 uppercase tracking-widest">Conversations with Visionaries</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-4 bg-black/50 border border-cyan-500/30 rounded-xl flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-cyan-950 rounded-full border border-cyan-400 flex items-center justify-center font-orbitron font-bold text-white shrink-0">
+                            ISRO
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-base">Space Symposium</h4>
+                            <p class="text-xs text-gray-400 uppercase">Indian Gaganyatris & ISRO Scientists</p>
+                            <p class="text-xs text-gray-300">
+                                Detailed panel with India's primary astronauts on the upcoming human spaceflight mission and lunar landing trajectories.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-black/50 border border-purple-500/30 rounded-xl flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-purple-950 rounded-full border border-purple-400 flex items-center justify-center font-orbitron font-bold text-white shrink-0">
+                            INFY
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-base">Keynote Address</h4>
+                            <p class="text-xs text-gray-400 uppercase">Shri N. R. Narayana Murthy</p>
+                            <p class="text-xs text-gray-300">
+                                Founder of Infosys sharing his profound journey on the future of global enterprise software systems and industrial scaling.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-black/50 border border-green-500/30 rounded-xl flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-green-950 rounded-full border border-green-400 flex items-center justify-center font-orbitron font-bold text-white shrink-0">
+                            DRDO
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-base">Defence Symposium</h4>
+                            <p class="text-xs text-gray-400 uppercase">Chief of Defence Staff & Military Chiefs</p>
+                            <p class="text-xs text-gray-300">
+                                Analyzing state-of-the-art technological sovereignty, aerospace dominance, and indigenous cyber warfare capabilities.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToSection('home')" class="w-full bg-gray-900 border border-gray-800 p-2 text-xs font-orbitron uppercase text-gray-400 hover:text-white rounded transition-colors text-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dimension Center
+                </button>
+            </section>
+
+            <!-- WORKSHOPS / EXTENDED FESTIVAL SECTION -->
+            <section id="section-workshops" class="space-y-5 hidden">
+                <div>
+                    <h3 class="font-orbitron font-bold text-2xl text-white">TECHNOHOLIX & OZONE</h3>
+                    <p class="text-xs text-cyan-400 uppercase tracking-widest">Where Tech Meets Entertainment</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-4 bg-black/50 border border-yellow-500/30 rounded-xl space-y-2">
+                        <span class="text-[9px] bg-yellow-400/10 text-yellow-400 px-2 py-0.5 rounded font-mono font-bold uppercase">Night Arena</span>
+                        <h4 class="font-bold text-lg text-white">Technoholix Showcases</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Witness breathtaking high-altitude drone maneuvers, laser maps, holographic musicians, EDM concert sets, and spectacular light integrations shining over the campus sky at Convocation Grounds.
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-black/50 border border-emerald-500/30 rounded-xl space-y-2">
+                        <span class="text-[9px] bg-emerald-400/10 text-emerald-400 px-2 py-0.5 rounded font-mono font-bold uppercase">Fun Hub</span>
+                        <h4 class="font-bold text-lg text-white">Ozone Zone</h4>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Take a break with high-speed Go-Karting tracks, 9D Virtual Reality flight simulators, paint-ball matches, laser tag arenas, and mechanical bull rodeos setup at the SAC grounds.
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="goToSection('home')" class="w-full bg-gray-900 border border-gray-800 p-2 text-xs font-orbitron uppercase text-gray-400 hover:text-white rounded transition-colors text-center">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dimension Center
+                </button>
+            </section>
+
+        </div>
+
+        <!-- Static Tech Footer HUD -->
+        <div class="bg-black/80 border-t border-cyber-border p-4 flex justify-between items-center text-xs">
+            <span class="font-mono text-gray-500 uppercase tracking-widest">IIT BOMBAY // DEC 22-24</span>
+            <span class="font-orbitron text-cyan-400 font-bold hover:underline cursor-pointer" onclick="goToSection('home')">RE-CENTER CORE</span>
+        </div>
+    </main>
+
+    <!-- Side Control UI Panel (Paradigm Customizer & System Info) -->
+    <div id="customize-panel" class="fixed top-24 right-6 bg-cyber-card border border-cyber-border rounded-xl backdrop-blur-md w-72 p-5 z-20 space-y-5 transition-all duration-300 translate-x-80 opacity-0 pointer-events-none shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+        <div class="flex items-center justify-between border-b border-cyber-border pb-2.5">
+            <h4 class="font-orbitron font-bold text-sm tracking-wider text-white">PARADIGM MATRIX</h4>
+            <button onclick="toggleCustomizePanel()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Dimensional Color Preset Switching -->
+        <div class="space-y-2.5">
+            <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Dimension Tint</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="applyPresetTheme('cyberpunk')" class="p-2 border border-cyan-400/40 hover:bg-cyan-500/10 text-xs rounded font-orbitron text-[#00f0ff] flex items-center justify-center space-x-1.5 transition-all">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                    <span>CYBER</span>
+                </button>
+                <button onclick="applyPresetTheme('quantum')" class="p-2 border border-green-500/20 hover:bg-green-500/10 text-xs rounded font-orbitron text-green-400 flex items-center justify-center space-x-1.5 transition-all">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                    <span>MATRIX</span>
+                </button>
+                <button onclick="applyPresetTheme('plasma')" class="p-2 border border-orange-500/20 hover:bg-orange-500/10 text-xs rounded font-orbitron text-orange-400 flex items-center justify-center space-x-1.5 transition-all">
+                    <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+                    <span>PLASMA</span>
+                </button>
+                <button onclick="applyPresetTheme('void')" class="p-2 border border-purple-500/20 hover:bg-purple-500/10 text-xs rounded font-orbitron text-purple-400 flex items-center justify-center space-x-1.5 transition-all">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                    <span>COSMOS</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3D Environment Control sliders -->
+        <div class="space-y-4">
+            <div class="space-y-1.5">
+                <div class="flex justify-between text-xs font-semibold text-gray-400 uppercase">
+                    <span>Simulation Speed</span>
+                    <span id="speed-val">1.0x</span>
+                </div>
+                <input type="range" id="sim-speed" min="0.1" max="4" step="0.1" value="1" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+            </div>
+
+            <div class="space-y-1.5">
+                <div class="flex justify-between text-xs font-semibold text-gray-400 uppercase">
+                    <span>Grid Density</span>
+                    <span id="density-val">1500</span>
+                </div>
+                <input type="range" id="sim-particles" min="200" max="3000" step="100" value="1500" class="w-full h-1 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+            </div>
+        </div>
+
+        <div class="pt-2 text-center text-[10px] font-mono text-gray-500 border-t border-gray-800">
+            GL-ENGINE: WEBGL_v2.0
+        </div>
+    </div>
+
+    <!-- AI Guide Panel Chat overlay -->
+    <div id="ai-chat-panel" class="fixed bottom-6 right-6 w-96 h-[500px] max-w-[90vw] max-h-[75vh] bg-cyber-card border border-cyber-border rounded-xl backdrop-blur-md z-40 flex flex-col transition-all duration-300 translate-y-[600px] opacity-0 pointer-events-none shadow-[0_0_30px_rgba(0,0,0,0.6)] overflow-hidden">
+        
+        <!-- Chat Header -->
+        <div class="bg-black/80 border-b border-cyber-border p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#00f0ff]"></div>
+                <div>
+                    <h4 class="font-orbitron font-bold text-sm tracking-wider text-white">AI GUIDE ASSISTANT</h4>
+                    <span class="text-[10px] text-gray-500 uppercase tracking-widest block font-rajdhani">Gemini Cognitive Matrix</span>
+                </div>
+            </div>
+            <button onclick="closeChat()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Quick Info Banner -->
+        <div class="bg-cyan-500/10 border-b border-cyan-500/20 px-4 py-2 text-[11px] text-gray-300 flex items-center space-x-2">
+            <i class="fa-solid fa-circle-info text-cyan-400"></i>
+            <span>Ask me about events, timelines, rules, or core speakers!</span>
+        </div>
+
+        <!-- Chat History -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 font-rajdhani text-sm leading-relaxed scroll-smooth">
+            <!-- Bot Welcome -->
+            <div class="flex items-start space-x-2 max-w-[85%]">
+                <div class="w-7 h-7 rounded-full bg-cyan-950 border border-cyan-400 flex items-center justify-center text-xs text-cyan-400 shrink-0 font-bold font-orbitron">
+                    TF
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-gray-200">
+                    Greetings, Innovator. I am the cognitive coordinator for Techfest IIT Bombay 2026. What segment of the <span class="text-cyan-400 font-semibold font-orbitron">Simulated Paradigm</span> shall we decode today?
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Suggestion chips -->
+        <div class="px-4 py-2 border-t border-gray-800/40 flex space-x-2 overflow-x-auto whitespace-nowrap scrollbar-none text-[11px]">
+            <button onclick="sendQuickPrompt('Explain the 2025 theme: A Simulated Paradigm')" class="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-300 text-gray-300 border border-white/10 rounded-full px-3 py-1 transition-colors">Theme?</button>
+            <button onclick="sendQuickPrompt('Tell me about International Robowars')" class="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-300 text-gray-300 border border-white/10 rounded-full px-3 py-1 transition-colors">Robowars</button>
+            <button onclick="sendQuickPrompt('Who are the key speakers for lectures?')" class="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-300 text-gray-300 border border-white/10 rounded-full px-3 py-1 transition-colors">Lectures</button>
+            <button onclick="sendQuickPrompt('What is the Ozone zone?')" class="bg-white/5 hover:bg-cyan-500/20 hover:text-cyan-300 text-gray-300 border border-white/10 rounded-full px-3 py-1 transition-colors">Ozone</button>
+        </div>
+
+        <!-- Chat input panel -->
+        <div class="p-3 bg-black/60 border-t border-cyber-border flex items-center space-x-2">
+            <input type="text" id="chat-input" placeholder="Query the paradigm map..." class="flex-1 bg-white/5 border border-gray-800 focus:border-cyan-400 focus:outline-none rounded-lg p-2.5 text-xs text-white placeholder-gray-500">
+            <button onclick="sendMessage()" class="bg-[#00f0ff] hover:bg-cyan-400 hover:shadow-[0_0_10px_rgba(0,240,255,0.5)] text-black p-2.5 rounded-lg flex items-center justify-center transition-all">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Central Spatial Pointer / Overlay helper text -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 pointer-events-none z-10 flex flex-col items-center justify-center space-y-1">
+        <div class="flex items-center space-x-2 text-[10px] font-orbitron font-semibold tracking-[0.3em] text-gray-400 uppercase">
+            <i class="fa-solid fa-arrows-to-eye text-cyan-400 animate-pulse"></i>
+            <span>Drag to rotate dimension • Scroll to zoom</span>
+        </div>
+        <div class="text-[10px] text-gray-500 uppercase font-mono tracking-widest bg-black/40 px-2 py-0.5 rounded border border-white/5">
+            Click glowing celestial nodes to anchor target UI
+        </div>
+    </div>
+
+    <!-- CDNs: ThreeJS, OrbitControls, and GSAP for state translations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+        // --- GEMINI API CAPABILITY CONFIG ---
+        const apiKey = ""; // Runtime auto-injected by system environment
+        
+        // --- 3D WebGL Scene Global Variables ---
+        let scene, camera, renderer, controls;
+        let starField, starGeometry;
+        let centralCore, coreRing1, coreRing2, coreCenter;
+        let interactiveNodes = [];
+        let light1, light2, ambientLight;
+        let activeHoverNode = null;
+        let activeColorPreset = 'cyberpunk';
+
+        // Custom Sound synthesis using Web Audio API to prevent heavy external media loading
+        let audioCtx = null;
+        let bgOscillator = null;
+        let masterGain = null;
+        let audioEnabled = false;
+
+        // Custom visual color preset themes for real-time dimension shifting
+        const THEMES = {
+            cyberpunk: {
+                accent: '#00f0ff',
+                accentSec: '#ff007f',
+                glow: 'rgba(0, 240, 255, 0.4)',
+                glowSec: 'rgba(255, 0, 127, 0.4)',
+                primaryColor: 0x00f0ff,
+                secondaryColor: 0xff007f,
+                tertiaryColor: 0x8b5cf6
+            },
+            quantum: {
+                accent: '#10b981',
+                accentSec: '#059669',
+                glow: 'rgba(16, 185, 129, 0.4)',
+                glowSec: 'rgba(5, 150, 105, 0.4)',
+                primaryColor: 0x10b981,
+                secondaryColor: 0x34d399,
+                tertiaryColor: 0x047857
+            },
+            plasma: {
+                accent: '#f97316',
+                accentSec: '#dc2626',
+                glow: 'rgba(249, 115, 22, 0.4)',
+                glowSec: 'rgba(220, 38, 38, 0.4)',
+                primaryColor: 0xf97316,
+                secondaryColor: 0xef4444,
+                tertiaryColor: 0xfbbf24
+            },
+            void: {
+                accent: '#a855f7',
+                accentSec: '#3b82f6',
+                glow: 'rgba(168, 85, 247, 0.4)',
+                glowSec: 'rgba(59, 130, 246, 0.4)',
+                primaryColor: 0xa855f7,
+                secondaryColor: 0x3b82f6,
+                tertiaryColor: 0x6366f1
+            }
+        };
+
+        // Node descriptions for raycaster tracking
+        const NODE_METADATA = [
+            { id: 'competitions', label: 'COMPETITIONS & ROBOWARS', position: { x: -8, y: 3, z: 2 }, color: 0xff007f, shape: 'octahedron' },
+            { id: 'exhibitions', label: 'GLOBAL EXHIBITIONS', position: { x: 8, y: -2, z: -3 }, color: 0x00f0ff, shape: 'cube' },
+            { id: 'lectures', label: 'KEYNOTE TALKS', position: { x: -3, y: -6, z: -7 }, color: 0xa855f7, shape: 'icosahedron' },
+            { id: 'workshops', label: 'TECHNOHOLIX NIGHTS', position: { x: 5, y: 6, z: 6 }, color: 0xfbbf24, shape: 'cone' }
+        ];
+
+        // --- Init WebGL Spatial Engine ---
+        function init3D() {
+            const canvas = document.getElementById('webgl-canvas');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x02040a, 0.015);
+
+            // Camera Setup
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 18);
+
+            // Renderer Setup
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Controls setup
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 35;
+            controls.minDistance = 6;
+
+            // Lights Setup
+            ambientLight = new THREE.AmbientLight(0x0a0f1d, 1.2);
+            scene.add(ambientLight);
+
+            light1 = new THREE.PointLight(THEMES.cyberpunk.primaryColor, 4, 30);
+            light1.position.set(10, 5, 10);
+            scene.add(light1);
+
+            light2 = new THREE.PointLight(THEMES.cyberpunk.secondaryColor, 3, 30);
+            light2.position.set(-10, -5, -10);
+            scene.add(light2);
+
+            // Populate the "Simulated Paradigm" celestial network
+            createUniverseParticles();
+            createCentralCore();
+            createInteractiveNodes();
+
+            // Initialize listeners
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', onCanvasClick);
+        }
+
+        // --- Procedural Generation Elements ---
+        function createUniverseParticles() {
+            const particleCount = parseInt(document.getElementById('sim-particles').value) || 1500;
+            starGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                // Sphere distributed coordinate mapping
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+                const r = 15 + Math.random() * 20; // Radius bounds
+
+                positions[i] = r * Math.sin(phi) * Math.cos(theta);
+                positions[i + 1] = r * Math.sin(phi) * Math.sin(theta);
+                positions[i + 2] = r * Math.cos(phi);
+
+                // Blend colors between preset themes
+                const mixedColor = new THREE.Color().lerpColors(
+                    new THREE.Color(THEMES[activeColorPreset].primaryColor),
+                    new THREE.Color(THEMES[activeColorPreset].secondaryColor),
+                    Math.random()
+                );
+                colors[i] = mixedColor.r;
+                colors[i+1] = mixedColor.g;
+                colors[i+2] = mixedColor.b;
+            }
+
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const starMaterial = new THREE.PointsMaterial({
+                size: 0.15,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                sizeAttenuation: true
+            });
+
+            starField = new THREE.Points(starGeometry, starMaterial);
+            scene.add(starField);
+        }
+
+        function createCentralCore() {
+            centralCore = new THREE.Group();
+
+            // Outer Orbit wireframe ring 1
+            const r1Geom = new THREE.TorusGeometry(3.5, 0.05, 8, 64);
+            const r1Mat = new THREE.MeshBasicMaterial({ 
+                color: THEMES[activeColorPreset].primaryColor, 
+                wireframe: true, 
+                transparent: true, 
+                opacity: 0.6 
+            });
+            coreRing1 = new THREE.Mesh(r1Geom, r1Mat);
+            centralCore.add(coreRing1);
+
+            // Outer Orbit wireframe ring 2
+            const r2Geom = new THREE.TorusGeometry(4.2, 0.04, 8, 64);
+            const r2Mat = new THREE.MeshBasicMaterial({ 
+                color: THEMES[activeColorPreset].secondaryColor, 
+                wireframe: true, 
+                transparent: true, 
+                opacity: 0.4 
+            });
+            coreRing2 = new THREE.Mesh(r2Geom, r2Mat);
+            coreRing2.rotation.x = Math.PI / 2;
+            centralCore.add(coreRing2);
+
+            // Glowing central icosahedron
+            const coreGeom = new THREE.IcosahedronGeometry(1.6, 1);
+            const coreMat = new THREE.MeshLambertMaterial({
+                color: THEMES[activeColorPreset].primaryColor,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.9,
+                emissive: THEMES[activeColorPreset].primaryColor,
+                emissiveIntensity: 0.5
+            });
+            coreCenter = new THREE.Mesh(coreGeom, coreMat);
+            centralCore.add(coreCenter);
+
+            // Small solid core ball
+            const solidCoreGeom = new THREE.SphereGeometry(0.6, 16, 16);
+            const solidCoreMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9
+            });
+            const solidInner = new THREE.Mesh(solidCoreGeom, solidCoreMat);
+            centralCore.add(solidInner);
+
+            scene.add(centralCore);
+        }
+
+        function createInteractiveNodes() {
+            // Remove previous nodes if recreating
+            interactiveNodes.forEach(node => scene.remove(node));
+            interactiveNodes = [];
+
+            NODE_METADATA.forEach(meta => {
+                let geom;
+                switch (meta.shape) {
+                    case 'octahedron':
+                        geom = new THREE.OctahedronGeometry(1, 0);
+                        break;
+                    case 'cube':
+                        geom = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+                        break;
+                    case 'icosahedron':
+                        geom = new THREE.IcosahedronGeometry(1.1, 0);
+                        break;
+                    case 'cone':
+                        geom = new THREE.ConeGeometry(0.8, 1.6, 6);
+                        break;
+                    default:
+                        geom = new THREE.SphereGeometry(1, 8, 8);
+                }
+
+                // Node Wireframe material with customizable neon emission
+                const mat = new THREE.MeshLambertMaterial({
+                    color: meta.color,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.8,
+                    emissive: meta.color,
+                    emissiveIntensity: 0.4
+                });
+
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.set(meta.position.x, meta.position.y, meta.position.z);
+                
+                // Store node ID meta directly in ThreeJS mesh Object3D
+                mesh.userData = { id: meta.id, label: meta.label, baseColor: meta.color, originalScale: 1 };
+                
+                // Outer glow orbits for node
+                const ringGeom = new THREE.RingGeometry(1.3, 1.4, 8);
+                const ringMat = new THREE.MeshBasicMaterial({ color: meta.color, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+                const nodeRing = new THREE.Mesh(ringGeom, ringMat);
+                nodeRing.rotation.x = Math.PI / 4;
+                mesh.add(nodeRing);
+
+                scene.add(mesh);
+                interactiveNodes.push(mesh);
+            });
+        }
+
+        // --- Custom Theme preset switching logic ---
+        function applyPresetTheme(themeKey) {
+            if (!THEMES[themeKey]) return;
+            activeColorPreset = themeKey;
+
+            // Generate procedural audio chime
+            playSynthChime(220, 'triangle', 0.2);
+            setTimeout(() => playSynthChime(440, 'sine', 0.4), 100);
+
+            const theme = THEMES[themeKey];
+
+            // Update DOM CSS styles
+            document.documentElement.style.setProperty('--neon-accent', theme.accent);
+            document.documentElement.style.setProperty('--neon-accent-secondary', theme.accentSec);
+            document.documentElement.style.setProperty('--neon-glow', theme.glow);
+            document.documentElement.style.setProperty('--neon-glow-secondary', theme.glowSec);
+
+            // Update point lights
+            gsap.to(light1.color, { r: ((theme.primaryColor >> 16) & 255) / 255, g: ((theme.primaryColor >> 8) & 255) / 255, b: (theme.primaryColor & 255) / 255, duration: 1.5 });
+            gsap.to(light2.color, { r: ((theme.secondaryColor >> 16) & 255) / 255, g: ((theme.secondaryColor >> 8) & 255) / 255, b: (theme.secondaryColor & 255) / 255, duration: 1.5 });
+
+            // Recreate starfield with updated gradient palette
+            scene.remove(starField);
+            createUniverseParticles();
+
+            // Transition central core materials smoothly
+            gsap.to(coreRing1.material.color, { r: ((theme.primaryColor >> 16) & 255) / 255, g: ((theme.primaryColor >> 8) & 255) / 255, b: (theme.primaryColor & 255) / 255, duration: 1.2 });
+            gsap.to(coreRing2.material.color, { r: ((theme.secondaryColor >> 16) & 255) / 255, g: ((theme.secondaryColor >> 8) & 255) / 255, b: (theme.secondaryColor & 255) / 255, duration: 1.2 });
+            gsap.to(coreCenter.material.color, { r: ((theme.primaryColor >> 16) & 255) / 255, g: ((theme.primaryColor >> 8) & 255) / 255, b: (theme.primaryColor & 255) / 255, duration: 1.2 });
+            gsap.to(coreCenter.material.emissive, { r: ((theme.primaryColor >> 16) & 255) / 255, g: ((theme.primaryColor >> 8) & 255) / 255, b: (theme.primaryColor & 255) / 255, duration: 1.2 });
+
+            // Animate interface indicator
+            const trigger = document.getElementById('customize-trigger');
+            trigger.style.borderColor = theme.accent;
+            trigger.classList.add('scale-110');
+            setTimeout(() => trigger.classList.remove('scale-110'), 300);
+        }
+
+        // --- Custom Spatial Audio Synthesizer (Web Audio API) ---
+        function initSpatialAudio() {
+            if (audioCtx) return;
+
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime); // Low baseline volume
+                masterGain.connect(audioCtx.destination);
+
+                // Continuous sci-fi generator hum in background
+                bgOscillator = audioCtx.createOscillator();
+                bgOscillator.type = 'sawtooth';
+                bgOscillator.frequency.setValueAtTime(55, audioCtx.currentTime); // A1 note Hum
+
+                const lowpass = audioCtx.createBiquadFilter();
+                lowpass.type = 'lowpass';
+                lowpass.frequency.setValueAtTime(120, audioCtx.currentTime);
+
+                bgOscillator.connect(lowpass);
+                lowpass.connect(masterGain);
+                bgOscillator.start();
+
+                audioEnabled = true;
+                updateAudioUI();
+            } catch (err) {
+                console.log('Web Audio API not supported/blocked on this browser.');
+            }
+        }
+
+        function playSynthChime(frequency, type = 'sine', duration = 0.3) {
+            if (!audioCtx || !audioEnabled) return;
+            
+            try {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                // Smooth exponential decay fadeout
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function toggleAudio() {
+            if (!audioCtx) {
+                initSpatialAudio();
+                return;
+            }
+
+            if (audioEnabled) {
+                masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                audioEnabled = false;
+            } else {
+                masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                audioEnabled = true;
+                playSynthChime(523.25, 'sine', 0.5); // C5 note confirm chime
+            }
+            updateAudioUI();
+        }
+
+        function updateAudioUI() {
+            const icon = document.getElementById('audio-icon');
+            if (audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-cyan-400';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-red-500';
+            }
+        }
+
+        // --- Interaction raycasting logic ---
+        const mouse = new THREE.Vector2();
+        const raycaster = new THREE.Raycaster();
+
+        function onMouseMove(event) {
+            // Screen coords to WebGL standardized coordinate mappings
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            // Track Coordinates live in HUD
+            document.getElementById('coordinates-text').innerText = `CORE: ${mouse.x.toFixed(2)}, ${mouse.y.toFixed(2)}`;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveNodes);
+
+            if (intersects.length > 0) {
+                const hitNode = intersects[0].object;
+                if (activeHoverNode !== hitNode) {
+                    if (activeHoverNode) resetNodeScale(activeHoverNode);
+                    
+                    activeHoverNode = hitNode;
+                    // Hover magnification
+                    gsap.to(hitNode.scale, { x: 1.3, y: 1.3, z: 1.3, duration: 0.3 });
+                    hitNode.material.emissiveIntensity = 0.9;
+
+                    // Play tiny spatial hover click
+                    playSynthChime(880, 'sine', 0.05);
+                    document.body.style.cursor = 'pointer';
+                }
+            } else {
+                if (activeHoverNode) {
+                    resetNodeScale(activeHoverNode);
+                    activeHoverNode = null;
+                    document.body.style.cursor = 'default';
+                }
+            }
+        }
+
+        function resetNodeScale(node) {
+            gsap.to(node.scale, { x: 1.0, y: 1.0, z: 1.0, duration: 0.3 });
+            node.material.emissiveIntensity = 0.4;
+        }
+
+        function onCanvasClick(event) {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactiveNodes);
+
+            if (intersects.length > 0) {
+                const hitNode = intersects[0].object;
+                const sectionId = hitNode.userData.id;
+                goToSection(sectionId);
+            }
+        }
+
+        // --- Camera flight path orchestrator (GSAP + Three.js) ---
+        function goToSection(sectionId) {
+            // Sound feedback
+            playSynthChime(659.25, 'triangle', 0.15); // E5 chord chime
+
+            // Activate content block smoothly
+            const sections = ['home', 'competitions', 'exhibitions', 'lectures', 'workshops'];
+            sections.forEach(sec => {
+                const docSec = document.getElementById(`section-${sec}`);
+                if (sec === sectionId) {
+                    docSec.classList.remove('hidden');
+                    docSec.classList.add('block');
+                } else {
+                    docSec.classList.add('hidden');
+                    docSec.classList.remove('block');
+                }
+            });
+
+            // Re-render layout transitions smoothly inside scrollbar
+            document.getElementById('hud-scroll-container').scrollTop = 0;
+
+            // Shift navigation underline styles manually
+            const navButtons = document.querySelectorAll('nav button');
+            navButtons.forEach(btn => {
+                if (btn.innerText.toLowerCase().includes(sectionId.substring(0,4))) {
+                    btn.className = "hover:text-cyan-400 transition-colors text-white border-b-2 border-cyan-400 pb-1";
+                } else {
+                    btn.className = "hover:text-cyan-400 transition-colors text-gray-400";
+                }
+            });
+
+            // Focus 3D Camera coordinates onto selected spatial node
+            const targetMeta = NODE_METADATA.find(m => m.id === sectionId);
+            if (targetMeta) {
+                // Focus Camera closer to Node
+                gsap.to(camera.position, {
+                    x: targetMeta.position.x * 1.5,
+                    y: targetMeta.position.y * 1.5,
+                    z: targetMeta.position.z * 1.5 + 4,
+                    duration: 1.8,
+                    ease: 'power2.inOut',
+                    onUpdate: () => controls.update()
+                });
+                gsap.to(controls.target, {
+                    x: targetMeta.position.x,
+                    y: targetMeta.position.y,
+                    z: targetMeta.position.z,
+                    duration: 1.8,
+                    ease: 'power2.inOut'
+                });
+            } else if (sectionId === 'home') {
+                // Return to portal center overview
+                gsap.to(camera.position, {
+                    x: 0,
+                    y: 0,
+                    z: 18,
+                    duration: 2.0,
+                    ease: 'power2.inOut',
+                    onUpdate: () => controls.update()
+                });
+                gsap.to(controls.target, {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    duration: 2.0,
+                    ease: 'power2.inOut'
+                });
+            }
+        }
+
+        // --- Customization matrix slider listeners ---
+        document.getElementById('sim-speed').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('speed-val').innerText = `${val.toFixed(1)}x`;
+        });
+
+        document.getElementById('sim-particles').addEventListener('change', () => {
+            const count = parseInt(document.getElementById('sim-particles').value);
+            document.getElementById('density-val').innerText = count;
+            // Hotreload Starfields
+            scene.remove(starField);
+            createUniverseParticles();
+        });
+
+        // --- Custom panel triggers ---
+        function toggleCustomizePanel() {
+            const panel = document.getElementById('customize-panel');
+            if (panel.classList.contains('pointer-events-none')) {
+                panel.classList.remove('pointer-events-none', 'translate-x-80', 'opacity-0');
+                panel.classList.add('translate-x-0', 'opacity-100');
+                playSynthChime(783.99, 'sine', 0.1);
+            } else {
+                panel.classList.add('pointer-events-none', 'translate-x-80', 'opacity-0');
+                panel.classList.remove('translate-x-0', 'opacity-100');
+                playSynthChime(523.25, 'sine', 0.1);
+            }
+        }
+        document.getElementById('customize-trigger').addEventListener('click', toggleCustomizePanel);
+
+        // --- Real-time Interactive AI Assistant Module (GEMINI 2.5 INTEGRATION) ---
+        function openChat() {
+            const panel = document.getElementById('ai-chat-panel');
+            panel.classList.remove('pointer-events-none', 'translate-y-[600px]', 'opacity-0');
+            panel.classList.add('translate-y-0', 'opacity-100');
+            playSynthChime(880, 'sine', 0.2);
+            initSpatialAudio(); // Automatically initialize audio systems
+        }
+
+        function closeChat() {
+            const panel = document.getElementById('ai-chat-panel');
+            panel.classList.add('pointer-events-none', 'translate-y-[600px]', 'opacity-0');
+            panel.classList.remove('translate-y-0', 'opacity-100');
+            playSynthChime(440, 'sine', 0.2);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            // Render User Bubble
+            appendChatMessage('user', messageText);
+            input.value = '';
+
+            // Loading system prompt bubble
+            const loadingBubbleId = appendChatMessage('bot', 'Connecting with Neural Paradigm Core...', true);
+
+            // API Payload formulation with exponential fallback
+            try {
+                const responseText = await callGeminiAPI(messageText);
+                removeLoadingBubble(loadingBubbleId);
+                appendChatMessage('bot', responseText);
+                playSynthChime(587.33, 'triangle', 0.35); // Success tone
+            } catch (err) {
+                removeLoadingBubble(loadingBubbleId);
+                appendChatMessage('bot', 'Transmission Interrupted. Spatial link unstable. Please verify connection and retry.');
+                playSynthChime(220, 'sawtooth', 0.4); // Failure tone
+            }
+        }
+
+        // Send predefined questions
+        function sendQuickPrompt(promptText) {
+            appendChatMessage('user', promptText);
+            const loadingBubbleId = appendChatMessage('bot', 'Connecting with Neural Paradigm Core...', true);
+            callGeminiAPI(promptText)
+                .then(res => {
+                    removeLoadingBubble(loadingBubbleId);
+                    appendChatMessage('bot', res);
+                    playSynthChime(587.33, 'triangle', 0.35);
+                })
+                .catch(() => {
+                    removeLoadingBubble(loadingBubbleId);
+                    appendChatMessage('bot', 'Failed to trace spatial signals. Connection error.');
+                });
+        }
+
+        // Real-time integration call with exponential fallback
+        async function callGeminiAPI(userQuery) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const systemPrompt = `You are "TF-Guide", the advanced AI Interface for Techfest IIT Bombay (29th Edition, Theme: "A Simulated Paradigm" held Dec 22-24, 2025 at IIT Bombay campus, Mumbai).
+            Key structural sections of Techfest to address:
+            1. Competitions (Robowars, Meshmerize line follower, Cozmoclench, Algorithmic Trading with Jane Street, AutoDev hackathons, drone imaging).
+            2. Exhibitions (Unitree G1 humanoid, DJRobotics, Wehead, Defense Expo).
+            3. Lectures (Nitin Gadkari, Narayana Murthy, ISRO astronauts, CDS Chiefs, Nobel Laureates).
+            4. Technoholix (Night laser shows, high-end drone maps, EDM concerts).
+            5. Ozone (Go-Karting, VR simulators, paintball).
+            Keep your responses helpful, highly exciting, concise (under 4 sentences if possible), futuristic and formatted with neat Markdown.`;
+
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: userQuery }] }],
+                            systemInstruction: { parts: [{ text: systemPrompt }] }
+                        })
+                    });
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Communication loop empty.";
+                } catch (error) {
+                    if (i === 4) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        function appendChatMessage(sender, text, isLoading = false) {
+            const container = document.getElementById('chat-messages');
+            const bubbleId = 'bubble-' + Math.random().toString(36).substring(2, 9);
+            
+            const div = document.createElement('div');
+            div.id = bubbleId;
+            div.className = sender === 'user' 
+                ? "flex items-start justify-end space-x-2 max-w-[85%] ml-auto"
+                : "flex items-start space-x-2 max-w-[85%]";
+
+            const iconHtml = sender === 'user' 
+                ? `<div class="w-7 h-7 rounded-full bg-pink-950 border border-pink-500 flex items-center justify-center text-xs text-pink-400 shrink-0 font-bold">U</div>`
+                : `<div class="w-7 h-7 rounded-full bg-cyan-950 border border-cyan-400 flex items-center justify-center text-xs text-cyan-400 shrink-0 font-bold font-orbitron">TF</div>`;
+
+            const contentHtml = sender === 'user'
+                ? `<div class="bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 rounded-xl p-3 text-gray-200">${text}</div>`
+                : `<div class="bg-white/5 border border-white/10 rounded-xl p-3 text-gray-200 ${isLoading ? 'animate-pulse text-cyan-400' : ''}">${text}</div>`;
+
+            if (sender === 'user') {
+                div.innerHTML = contentHtml + iconHtml;
+            } else {
+                div.innerHTML = iconHtml + contentHtml;
+            }
+
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return bubbleId;
+        }
+
+        function removeLoadingBubble(id) {
+            const bubble = document.getElementById(id);
+            if (bubble) bubble.remove();
+        }
+
+        // Enable trigger sending message on "Enter" keypress
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Toggle Audio trigger
+        document.getElementById('audio-toggle').addEventListener('click', toggleAudio);
+
+        // --- Render Loop & Resize handlers ---
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animate simulation loops
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const speedMultiplier = parseFloat(document.getElementById('sim-speed').value) || 1.0;
+
+            // Spin Central Core structures
+            if (centralCore) {
+                centralCore.rotation.y += 0.005 * speedMultiplier;
+                coreRing1.rotation.y += 0.01 * speedMultiplier;
+                coreRing2.rotation.z -= 0.008 * speedMultiplier;
+                coreCenter.rotation.x += 0.012 * speedMultiplier;
+            }
+
+            // Drifting Stars
+            if (starField) {
+                starField.rotation.y += 0.0004 * speedMultiplier;
+                starField.rotation.x += 0.0001 * speedMultiplier;
+            }
+
+            // Spin interactive peripheral nodes
+            interactiveNodes.forEach((node, idx) => {
+                node.rotation.y += 0.01 * (idx % 2 === 0 ? 1 : -1) * speedMultiplier;
+                node.rotation.x += 0.005 * speedMultiplier;
+                
+                // Slight floating bounce animation procedurally
+                const bounce = Math.sin(Date.now() * 0.0015 + idx) * 0.003;
+                node.position.y += bounce;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // --- Mock Loader Progression & Launch Engine ---
+        window.onload = function() {
+            let progress = 0;
+            const loaderBar = document.getElementById('loader-bar');
+            const loaderStatus = document.getElementById('loader-status');
+            
+            const loaderTimer = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(loaderTimer);
+                    
+                    // Smooth Transition to hide loading screen
+                    gsap.to("#loader", {
+                        opacity: 0,
+                        duration: 0.8,
+                        onComplete: () => {
+                            document.getElementById('loader').style.display = 'none';
+                            // Launch 3D and sounds
+                            init3D();
+                            animate();
+                        }
+                    });
+                }
+                loaderBar.style.width = `${progress}%`;
+                loaderStatus.innerText = `INITIALISING SPATIAL ENGINE... [${progress}%]`;
+            }, 100);
+        };
+    </script>
+</body>
+</html>
